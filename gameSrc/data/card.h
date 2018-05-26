@@ -91,7 +91,7 @@ class Card : public QObject
 		}
 
 	signals:
-		void orientationChanged(Orientation orientation);
+		void orientationChanged(Card::Orientation orientation);
 		void rotationChanged(unsigned int);
 
 	public slots:

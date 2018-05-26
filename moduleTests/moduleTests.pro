@@ -34,3 +34,5 @@ SOURCES += \
 HEADERS += \
     ../gameSrc/data/card.h \
     tests_cards.h
+
+RESOURCES +=

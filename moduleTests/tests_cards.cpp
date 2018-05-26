@@ -1,5 +1,6 @@
 #include <QtTest>
 #include <QSignalSpy>
+#include <QMetaType>
 
 #include "../gameSrc/data/card.h"
 #include "tests_cards.h"
@@ -38,14 +39,16 @@ void tests_Cards::Creation()
 void tests_Cards::Orientation()
 {
 	// Verify no signals have been emitted for the 2 of spades
-	//qRegisterMetaType<Card::Orientation>("Card::Orientation");
-	QSignalSpy spyCard_2_spades(card_2_Spades, SIGNAL(orientationChanged(Orientation)));
+	qRegisterMetaType<Card::Orientation>();
+	QSignalSpy spyCard_2_spades(card_2_Spades, &Card::orientationChanged);
 	QVERIFY(spyCard_2_spades.count() == 0);
 
 	// Set card face down; it should currently be face up. Signal should be emitted.
 	card_2_Spades->setOrientation(Card::FACE_DOWN);
 	QVERIFY(card_2_Spades->getOrientation() == Card::FACE_DOWN);
 	QVERIFY(spyCard_2_spades.count() == 1);
+	QList<QVariant> arguments = spyCard_2_spades.takeAt(0);
+	QVERIFY(arguments.at(0) == Card::FACE_DOWN);
 
 	// Set card face down again. No signal should be emitted.
 	card_2_Spades->setOrientation(Card::FACE_DOWN);
