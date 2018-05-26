@@ -38,34 +38,41 @@ void tests_Cards::Creation()
 
 void tests_Cards::Orientation()
 {
+	unsigned int signalCount;
+	QList<QVariant> arguments;
+
 	// Verify no signals have been emitted for the 2 of spades
 	qRegisterMetaType<Card::Orientation>();
 	QSignalSpy spyCard_2_spades(card_2_Spades, &Card::orientationChanged);
-	QVERIFY(spyCard_2_spades.count() == 0);
+	signalCount = spyCard_2_spades.count();
+	QVERIFY(signalCount == 0);
 
 	// Set card face down; it should currently be face up. Signal should be emitted.
 	card_2_Spades->setOrientation(Card::FACE_DOWN);
+	signalCount = spyCard_2_spades.count();
+	// Arguments for this signal event are 0 based, so the 1st signal event's arguments are at QList[0].
+	arguments = spyCard_2_spades.takeAt(signalCount-1);
 	QVERIFY(card_2_Spades->getOrientation() == Card::FACE_DOWN);
-	QVERIFY(spyCard_2_spades.count() == 1);
-	QList<QVariant> arguments = spyCard_2_spades.takeAt(0);
+	QVERIFY(signalCount == 1);
 	QVERIFY(arguments.at(0) == Card::FACE_DOWN);
 
-	// Set card face down again. No signal should be emitted.
+	// Set card face down again. They're already face down, so no signal should be emitted.
 	card_2_Spades->setOrientation(Card::FACE_DOWN);
+	signalCount = spyCard_2_spades.count();
+	// ERROR HERE. count returns 0. I didn't expect the counter to get reset.
+	// This causes the next call to seg fault.
+	arguments = spyCard_2_spades.takeAt(signalCount-1);;
 	QVERIFY(card_2_Spades->getOrientation() == Card::FACE_DOWN);
 	QVERIFY(spyCard_2_spades.count() == 1);
+	QVERIFY(arguments.at(0) == Card::FACE_DOWN);
 
 	// Set the card face up again. Another signal should be emitted.
 	card_2_Spades->setOrientation(Card::FACE_UP);
+	signalCount = spyCard_2_spades.count();
+	arguments = spyCard_2_spades.takeAt(signalCount-1);;
 	QVERIFY(card_2_Spades->getOrientation() == Card::FACE_UP);
 	QVERIFY(spyCard_2_spades.count() == 2);
-
-	/* Flip the king of hears, down and then up.
-	 */
-	card_King_Hearts->setOrientation(Card::FACE_DOWN);
-	QVERIFY(card_King_Hearts->getOrientation() == Card::FACE_DOWN);
-	card_King_Hearts->setOrientation(Card::FACE_UP);
-	QVERIFY(card_King_Hearts->getOrientation() == Card::FACE_UP);
+	QVERIFY(arguments.at(0) == Card::FACE_UP);
 }
 
 void tests_Cards::Rotation()
